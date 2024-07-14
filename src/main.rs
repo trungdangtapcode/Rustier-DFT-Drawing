@@ -4,18 +4,19 @@ extern crate glutin_window;
 extern crate opengl_graphics;
 extern crate num;
 
-pub mod dft;
-
 // use color::GREEN;
 use glutin_window::GlutinWindow;
 use piston::window::WindowSettings;
 use piston::{event_loop::*, RenderEvent};
 use opengl_graphics::{GlGraphics, OpenGL}; // Add this line to import the OpenGL module
-use num::complex::Complex;
+use num::complex::{Complex, ComplexFloat};
 
 use std::io::Write;
-use std::f64::consts::PI;
+use std::f64::consts::{E, PI};
 
+// pub mod dft;
+mod dft;
+mod interp;
 
 #[derive(Debug)]
 struct Tup(i32, i32);
@@ -28,6 +29,35 @@ pub mod say_hello {
 
 //draw a rectangle in rust  using pistol 
 fn main() {
+    let x = interp::Line{
+        start_point: Complex::<f64>::new(0.0,0.0),  
+        end_point: Complex::<f64>::new(0.0, 0.0)
+    };
+    println!("{:?}",x.abs());
+
+    return;
+    let v = vec![Complex::<f64>::new(1.0,1.0),
+        Complex::<f64>::new(-1.0,1.0),
+        Complex::<f64>::new(-1.0,-1.0),
+        Complex::<f64>::new(1.0,-1.0)];
+    let coef = dft::from_complex_vector(v);
+    for c in coef.iter(){
+        let tmp = c.to_polar();
+        println!("{}  angle = {}",tmp.0, tmp.1/PI*180.0);
+    }
+    let T: i32 = 100;
+    for t in 1..T{
+        let r: f64 = (t as f64)/(T as f64);
+        let mut f = Complex::<f64>::new(0.0,0.0);
+        for (k, c) in coef.iter().enumerate(){
+            f += c*Complex::<f64>::new(0.0,2.0*PI*(k as f64)*r).exp();
+        }
+        println!("{} = {}",r, f);
+    }
+    // let (mag, p) = Complex::<f64>::new(0.0,2.0).to_polar();
+    // println!("{}",p);
+
+    return;
     let opengl = OpenGL::V3_2;
     let mut window: GlutinWindow = WindowSettings::new("rustier", [1280, 720])
         .graphics_api(opengl)
@@ -43,12 +73,13 @@ fn main() {
         if let Some(args) = e.render_args() {
             use graphics::*;
             let GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
+            let RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
             
             gl.draw(args.viewport(), |c, gl|{
                 let transform = c.transform;
                 graphics::clear(GREEN, gl);
                 let square = rectangle::square(10 as f64, 10 as f64, 100 as f64);
-                // graphics::rectangle(RED, )
+                graphics::rectangle(RED, square, c.transform, gl);
             });
         }
     }
