@@ -7,6 +7,8 @@ extern crate num;
 // use color::GREEN;
 use glutin_window::GlutinWindow;
 use piston::window::WindowSettings;
+
+
 use piston::{event_loop::*, RenderEvent};
 use opengl_graphics::{GlGraphics, OpenGL}; // Add this line to import the OpenGL module
 use num::complex::{Complex, ComplexFloat};
@@ -17,6 +19,7 @@ use std::f64::consts::{E, PI};
 // pub mod dft;
 mod dft;
 mod interp;
+use interp::*;
 
 #[derive(Debug)]
 struct Tup(i32, i32);
@@ -29,24 +32,23 @@ pub mod say_hello {
 
 //draw a rectangle in rust  using pistol 
 fn main() {
-    let x = interp::Line{
-        start_point: Complex::<f64>::new(0.0,0.0),  
-        end_point: Complex::<f64>::new(0.0, 0.0)
-    };
-    println!("{:?}",x.abs());
-
-    return;
     let v = vec![Complex::<f64>::new(1.0,1.0),
         Complex::<f64>::new(-1.0,1.0),
         Complex::<f64>::new(-1.0,-1.0),
         Complex::<f64>::new(1.0,-1.0)];
-    let coef = dft::from_complex_vector(v);
+    // println!("{:?}",x.abs());
+    // println!("{}",x.abs());
+    let nv = interp::resize_interp(&v,8);
+    // let nv = v;
+    // println!("{:?}",nv);
+
+    let coef = dft::from_complex_vector(&nv);
     for c in coef.iter(){
         let tmp = c.to_polar();
-        println!("{}  angle = {}",tmp.0, tmp.1/PI*180.0);
+        // println!("{}  angle = {}",tmp.0, tmp.1/PI*180.0);
     }
     let T: i32 = 100;
-    for t in 1..T{
+    for t in 0..T{
         let r: f64 = (t as f64)/(T as f64);
         let mut f = Complex::<f64>::new(0.0,0.0);
         for (k, c) in coef.iter().enumerate(){
