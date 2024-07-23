@@ -1,3 +1,35 @@
+
+
+
+let v = vec![Complex::<f64>::new(1.0,1.0),
+    Complex::<f64>::new(-1.0,1.0),
+    Complex::<f64>::new(-1.0,-1.0),
+    Complex::<f64>::new(1.0,-1.0)];
+// println!("{:?}",x.abs());
+// println!("{}",x.abs());
+let nv = interp::resize_interp(&v,8);
+// let nv = v;
+// println!("{:?}",nv);
+
+let coef = dft::from_complex_vector(&nv);
+for c in coef.iter(){
+    let tmp = c.to_polar();
+    // println!("{}  angle = {}",tmp.0, tmp.1/PI*180.0);
+}
+let T: i32 = 100;
+for t in 0..T{
+    let r: f64 = (t as f64)/(T as f64);
+    let mut f = Complex::<f64>::new(0.0,0.0);
+    for (k, c) in coef.iter().enumerate(){
+        f += c*Complex::<f64>::new(0.0,2.0*PI*(k as f64)*r).exp();
+    }
+    println!("{} = {}",r, f);
+}
+// let (mag, p) = Complex::<f64>::new(0.0,2.0).to_polar();
+// println!("{}",p);
+
+return;
+======================================================
 use std::{f64::consts::PI, process::Output};
 
 use num::{complex::{Complex, ComplexFloat}, Signed};
