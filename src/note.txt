@@ -1,6 +1,11 @@
 
-
-
+let transform = c.transform.rot_deg(10.0);
+graphics::clear(colors::GREEN, gl);
+let square = rectangle::square(0 as f64, 0 as f64, 100 as f64);
+graphics::rectangle(colors::RED, square, transform, gl);
+let line = [00.0,00.0,200.0,200.0];
+graphics::line(colors::RED, 10.0, line, c.transform, gl);
+=================================================
 let v = vec![Complex::<f64>::new(1.0,1.0),
     Complex::<f64>::new(-1.0,1.0),
     Complex::<f64>::new(-1.0,-1.0),
