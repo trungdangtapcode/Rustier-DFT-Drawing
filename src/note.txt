@@ -1,4 +1,11 @@
 
+
+
+==========================================================
+
+// let mut events = piston::event_loop::Events::new(piston::event_loop::EventSettings::new());
+
+====================================================
 let transform = c.transform.rot_deg(10.0);
 graphics::clear(colors::GREEN, gl);
 let square = rectangle::square(0 as f64, 0 as f64, 100 as f64);

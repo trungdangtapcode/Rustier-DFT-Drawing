@@ -13,6 +13,12 @@ pub struct Line {
 }
 
 impl Line {
+    pub fn new(start_point: Complex<f64>, end_point: Complex<f64>) -> Line {
+        Line {
+            start_point: start_point,
+            end_point: end_point,
+        }
+    }
     pub fn abs(&self) -> f64 {
         let diff = self.end_point - self.start_point;
         diff.norm()
@@ -23,6 +29,10 @@ impl Line {
             return Complex::new(0.0, 0.0);
         }
         diff / diff.norm()
+    }
+    pub fn to_array(&self) -> [f64; 4] {
+        [self.start_point.re, self.start_point.im, 
+        self.end_point.re, self.end_point.im]
     }
 }
 

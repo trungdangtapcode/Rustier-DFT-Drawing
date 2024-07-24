@@ -27,7 +27,7 @@ struct Tup(i32, i32);
 
 //draw a rectangle in rust  using pistol 
 fn main() {
-    let num_circle: usize = 8;
+    let num_circle: usize = 1000;
     let v = vec![Complex::<f64>::new(100.0,100.0),
         Complex::<f64>::new(-100.0,100.0),
         Complex::<f64>::new(-100.0,-100.0),
@@ -42,17 +42,26 @@ fn main() {
         .unwrap();
     let mut gl = GlGraphics::new(opengl);
 
-    let mut circles = circles::Circles::new(&v, num_circle);
+    let mut circles = circles::Circles::new(&v, num_circle, screen_size);
+    let mut drawed_lines: Vec<interp::Line> = vec![];
     
     let mut events = Events::new(EventSettings::new()).ups(10);
-    // let mut events = piston::event_loop::Events::new(piston::event_loop::EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         if let Some(args) = e.render_args() {
+            graphics::clear(colors::BLACK, &mut gl);
             let t = args.viewport();
+            for line in &drawed_lines{
+                gl.draw(t, |c, gl|{
+                    graphics::line(colors::GREEN, 2.0, line.to_array(), c.transform, gl);
+                });
+            }
             circles.render(t, &mut gl);
         }
         if let Some(args) = e.update_args() {
-            println!("update args: {:?}", args.dt);
+            let u = circles.get_final_point()+circles.screen_offset;
+            circles.update(args.dt);
+            let v = circles.get_final_point()+circles.screen_offset;
+            drawed_lines.push(interp::Line::new(u,v));
         }
     }
     // dft::front_house::greet();
