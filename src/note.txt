@@ -1,6 +1,15 @@
 
 
 
+let v = vec![Complex::<f64>::new(100.0,100.0),
+    Complex::<f64>::new(-100.0,100.0),
+    Complex::<f64>::new(-100.0,-100.0),
+    Complex::<f64>::new(100.0,-100.0)];
+====================================================
+let line_color = [1.0, 0.0, 0.0, 1.0];
+let line_width = 1.0;
+let line = line.iter().map(|&x| [x.re, x.im]).collect::<Vec<[f64; 2]>>();
+line.draw(&line_color, line_width, &c.draw_state, c.transform, gl);
 ==========================================================
 
 // let mut events = piston::event_loop::Events::new(piston::event_loop::EventSettings::new());

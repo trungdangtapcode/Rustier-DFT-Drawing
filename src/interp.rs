@@ -38,6 +38,9 @@ impl Line {
 
 pub fn list_complex_to_lines(points: &Vec<Complex<f64>>) -> Vec<Line> {
     let mut lines = Vec::new();
+    if (points.len() == 0) {
+        return lines;
+    }
     for i in 0..points.len() - 1 {
         lines.push(Line {
             start_point: points[i],
