@@ -19,7 +19,7 @@ use std::f64::consts::{E, PI};
 use crate::interp;
 use crate::dft;
 use crate::colors;
-const CIRCLE_SPEED: f64 = 50.0;
+pub const CIRCLE_SPEED: f64 = 20.0;
 const PENDULUM_LINE_RAD: f64 = 2.0;
 const DRAW_LINE_RAD: f64 = 1.0;
 
@@ -63,13 +63,17 @@ impl Circles{
         }
     }
     
+    fn get_ratio(&self, t: f64) -> f64 {
+        (t/CIRCLE_SPEED*(self.coef.len() as f64)).round()/(self.coef.len() as f64)
+    }
+
     pub fn render(&self, t: graphics::Viewport, gl: &mut GlGraphics){
         gl.draw(t, |c, gl|{
             for line in self.drawed_lines.iter(){
                 let line = line.to_array();
                 graphics::line(colors::WHITE, DRAW_LINE_RAD, line, c.transform, gl);
             }
-            let r: f64 = self.current_time/CIRCLE_SPEED;
+            let r: f64 = self.get_ratio(self.current_time);
             let mut enumerate_sorted: Vec<(usize, Complex<f64>)> = (self.coef).iter().enumerate().map(|(i, &x)| (i, x)).collect();
             enumerate_sorted.sort_by(|a, b| if a.1.abs()>b.1.abs() {Ordering::Less} else {Ordering::Greater});
 
@@ -102,7 +106,7 @@ impl Circles{
         }
     }
     pub fn get_final_point(&self) -> Complex<f64>{
-        let r: f64 = self.current_time/CIRCLE_SPEED;
+        let r: f64 = self.get_ratio(self.current_time);
         let mut f = Complex::<f64>::new(0.0,0.0);
         for (k, c) in self.coef.iter().enumerate(){
             f += c*Complex::<f64>::new(0.0,2.0*PI*(k as f64)*r).exp();
