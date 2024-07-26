@@ -22,6 +22,7 @@ use crate::colors;
 pub const CIRCLE_SPEED: f64 = 20.0;
 const PENDULUM_LINE_RAD: f64 = 2.0;
 const DRAW_LINE_RAD: f64 = 1.0;
+const CIRCLE_LIMIT: usize = !0; // !0 for inf
 
 pub struct Circles {
     coef: Vec<Complex<f64>>,
@@ -29,18 +30,22 @@ pub struct Circles {
     screen_size: [u32; 2],
     pub screen_offset: Complex<f64>,
     drawed_lines: Vec<interp::Line>,
+    enumerate_sorted: Vec<(usize, Complex<f64>)>,
 }
 
 impl Circles{
     pub fn new(points: &Vec<Complex<f64>>, num_circles: usize, screen_size: [u32; 2]) -> Circles {
         let resized_points = interp::resize_interp(points, num_circles);
         let coef = dft::from_complex_vector(&resized_points);
+        let mut enumerate_sorted: Vec<(usize, Complex<f64>)> = (coef).iter().enumerate().map(|(i, &x)| (i, x)).collect();
+        enumerate_sorted.sort_by(|a, b| if a.1.abs()>b.1.abs() {Ordering::Less} else {Ordering::Greater});
         Circles {
             coef: coef,
             current_time: 0.0,
             screen_size: screen_size.to_owned(),
             screen_offset: Complex::<f64>::new(screen_size[0] as f64, screen_size[1] as f64)/2.0,
             drawed_lines: Vec::new(),
+            enumerate_sorted: enumerate_sorted,
         }
     }
 
@@ -74,11 +79,9 @@ impl Circles{
                 graphics::line(colors::WHITE, DRAW_LINE_RAD, line, c.transform, gl);
             }
             let r: f64 = self.get_ratio(self.current_time);
-            let mut enumerate_sorted: Vec<(usize, Complex<f64>)> = (self.coef).iter().enumerate().map(|(i, &x)| (i, x)).collect();
-            enumerate_sorted.sort_by(|a, b| if a.1.abs()>b.1.abs() {Ordering::Less} else {Ordering::Greater});
-
             let mut last = Complex::<f64>::new(0.0,0.0);
-            for (k, c_k) in enumerate_sorted.iter(){
+            let mut cir_cnt: usize = 0;
+            for (k, c_k) in self.enumerate_sorted.iter(){
                 let cur = last + c_k*Complex::<f64>::new(0.0,2.0*PI*(*k as f64)*r).exp();
                 if c_k.abs()>2.0{
                     let last_offseted = last+self.screen_offset;
@@ -87,13 +90,22 @@ impl Circles{
                     border.draw(circle, &c.draw_state, c.transform, gl);
                 }
                 last = cur;
+                cir_cnt+=1;
+                if (cir_cnt>=CIRCLE_LIMIT){
+                    break;
+                }
             }
             let mut last = Complex::<f64>::new(0.0,0.0);
-            for (k, c_k) in enumerate_sorted.iter(){
+            let mut cir_cnt: usize = 0;
+            for (k, c_k) in self.enumerate_sorted.iter(){
                 let cur = last + c_k*Complex::<f64>::new(0.0,2.0*PI*(*k as f64)*r).exp();
                 let line = interp::Line::new((last+self.screen_offset).to_owned(), (cur+self.screen_offset).to_owned()).to_array();
                 graphics::line(colors::RED, PENDULUM_LINE_RAD, line, c.transform, gl);
                 last = cur;
+                cir_cnt+=1;
+                if (cir_cnt>=CIRCLE_LIMIT){
+                    break;
+                }
             }
         });
     }
@@ -108,8 +120,13 @@ impl Circles{
     pub fn get_final_point(&self) -> Complex<f64>{
         let r: f64 = self.get_ratio(self.current_time);
         let mut f = Complex::<f64>::new(0.0,0.0);
-        for (k, c) in self.coef.iter().enumerate(){
-            f += c*Complex::<f64>::new(0.0,2.0*PI*(k as f64)*r).exp();
+        let mut cir_cnt: usize = 0;
+        for (k, c) in self.enumerate_sorted.iter(){
+            f += c*Complex::<f64>::new(0.0,2.0*PI*(*k as f64)*r).exp();
+            cir_cnt+=1;
+            if (cir_cnt>=CIRCLE_LIMIT){
+                break;
+            }
         }
         f
     }
