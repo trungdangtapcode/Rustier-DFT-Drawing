@@ -73,7 +73,9 @@ pub fn resize_interp(points: &Vec<Complex<f64>>, num_points: usize) -> Vec<Compl
         cur_len -= remain_len;
         while (cur_len > 0.0) {
             // println!("cur_point: {:?}", cur_point);
-            new_points.push(cur_point);
+            if (new_points.len()<num_points){
+                new_points.push(cur_point);   
+            }
             cur_point = cur_point.to_owned() + line.normalize() * each_len;
             cur_len -= each_len;
         }

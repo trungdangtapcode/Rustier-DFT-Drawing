@@ -12,13 +12,14 @@ use piston::{event_loop::*, RenderEvent}; // loop for events
 use opengl_graphics::{GlGraphics, OpenGL}; // Add this line to import the OpenGL module
 use num::complex::{Complex, ComplexFloat};
 
+use std::cmp::Ordering;
 use std::io::Write;
 use std::f64::consts::{E, PI};
 
 use crate::interp;
 use crate::dft;
 use crate::colors;
-const CIRCLE_SPEED: f64 = 20.0;
+const CIRCLE_SPEED: f64 = 50.0;
 const PENDULUM_LINE_RAD: f64 = 2.0;
 const DRAW_LINE_RAD: f64 = 1.0;
 
@@ -69,15 +70,26 @@ impl Circles{
                 graphics::line(colors::WHITE, DRAW_LINE_RAD, line, c.transform, gl);
             }
             let r: f64 = self.current_time/CIRCLE_SPEED;
+            let mut enumerate_sorted: Vec<(usize, Complex<f64>)> = (self.coef).iter().enumerate().map(|(i, &x)| (i, x)).collect();
+            enumerate_sorted.sort_by(|a, b| if a.1.abs()>b.1.abs() {Ordering::Less} else {Ordering::Greater});
+
             let mut last = Complex::<f64>::new(0.0,0.0);
-            for (k, c_k) in self.coef.iter().enumerate(){
-                let cur = last + c_k*Complex::<f64>::new(0.0,2.0*PI*(k as f64)*r).exp();
+            for (k, c_k) in enumerate_sorted.iter(){
+                let cur = last + c_k*Complex::<f64>::new(0.0,2.0*PI*(*k as f64)*r).exp();
+                if c_k.abs()>2.0{
+                    let last_offseted = last+self.screen_offset;
+                    let border = Ellipse::new_border(colors::CYAN, 0.5);
+                    let circle = ellipse::circle(last_offseted.re, last_offseted.im, c_k.abs());
+                    border.draw(circle, &c.draw_state, c.transform, gl);
+                }
+                last = cur;
+            }
+            let mut last = Complex::<f64>::new(0.0,0.0);
+            for (k, c_k) in enumerate_sorted.iter(){
+                let cur = last + c_k*Complex::<f64>::new(0.0,2.0*PI*(*k as f64)*r).exp();
                 let line = interp::Line::new((last+self.screen_offset).to_owned(), (cur+self.screen_offset).to_owned()).to_array();
                 graphics::line(colors::RED, PENDULUM_LINE_RAD, line, c.transform, gl);
                 last = cur;
-                if (k>5000){
-                    break;
-                }
             }
         });
     }
@@ -94,9 +106,6 @@ impl Circles{
         let mut f = Complex::<f64>::new(0.0,0.0);
         for (k, c) in self.coef.iter().enumerate(){
             f += c*Complex::<f64>::new(0.0,2.0*PI*(k as f64)*r).exp();
-            if (k>5000){
-                break;
-            }
         }
         f
     }

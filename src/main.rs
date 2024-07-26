@@ -40,9 +40,6 @@ struct Tup(i32, i32);
 
 //draw a rectangle in rust  using pistol 
 fn main() {
-    // println!("{}", f64::sin(PI));
-    // println!("{}", Complex::<f64>::new(0.0, PI).exp());
-    // println!("{}", Complex::<f64>::new(0.0, PI).myexp());
     let num_circle: usize = 5000;
     let screen_size: [u32 ; 2] = [1280, 720];
     let opengl = OpenGL::V3_2;
@@ -57,7 +54,7 @@ fn main() {
     let mut board: painting::Board = painting::Board::new(screen_size);
     let mut isClicked: bool = false;
     
-    let mut events = Events::new(EventSettings::new()).ups(10);
+    let mut events = Events::new(EventSettings::new()).ups(50);
     while let Some(e) = events.next(&mut window) {
         if let Some(args) = e.render_args() {
             graphics::clear(colors::BLACK, &mut gl);
@@ -67,6 +64,7 @@ fn main() {
                 let tmp = interp::resize_interp(&board.points, num_circle);
                 gl.draw(t, |c, gl|{
                     for p in &tmp{
+                        
                         let rad = 2.0;
                         let rect =  [p.re-rad, p.im-rad, 2.0*rad, 2.0*rad];
                         graphics::ellipse(colors::YELLOW, rect, c.transform, gl);
