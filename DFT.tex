@@ -1,0 +1,42 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{movie15}
+\usepackage{epstopdf}
+
+\epstopdfDeclareGraphicsRule{.gif}{png}{.png}{convert gif:#1 png:\OutputFile}
+\AppendGraphicsExtensions{.gif}
+
+\title{Discrete Fourier Transform Drawing}
+\author{Nhat Trung}
+
+\begin{document}
+
+
+\section{Introduction}
+The Discrete Fourier Transform (DFT) is a mathematical technique used to transform a sequence of complex or real numbers (typically samples of a signal, in this document we use complex number because we're on 2D plane) from the time domain into the frequency domain. Unlike the continuous Fourier Transform, which is applied to continuous signals, the DFT is applied to discrete signals, which are often obtained by sampling continuous signals at regular intervals (and it's programable).
+
+\section{Mathematical Definition}
+The Discrete Fourier Transform $c$ (coef) of a list of points $p$ is defined as:
+\begin{equation}
+    c_k = \dfrac{1}{n} \sum_{w=0}^{n-1} p_w e^{\dfrac{-i2\pi w k}{n}}
+\end{equation}
+where $c_k$ ($0\leq k < n$) is the coef representation of points $p_w$ ($0\leq w < n$).
+The inverse Fourier Transform is given by:
+\begin{equation}
+    p_w = \sum_{k=0}^{n-1} c_k e^{\dfrac{i2\pi w k}{n}}
+\end{equation}
+
+\section{Interpolation}
+Idea same as numpy: \href{https://numpy.org/doc/stable/reference/generated/numpy.interp.html}{here}
+
+\section{Discrete Time}
+We'll convert continuous time $0$ to $interp::CIRCLE_TIME$ to $num_circle$ discrete points $\dfrac{2\pi w}{n}$ ($0\leq w < n$).
+
+
+
+
+\end{document}
